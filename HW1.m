@@ -15,13 +15,13 @@ function [xopt, fopt, exitflag, output] = HW1()
     % ------------Objective and Non-linear Constraints------------
     function [f, c, ceq] = objcon(x)
         
-        % Design variables (THESE ARE CORRECT)
+        % Design variables (THESE ARE OK)
         d =  x(1);      % wire diameter
         D =  x(2);      % coil diameter
         n =  x(3);      % number of coils
         hf = x(4);      % unloaded height
         
-        % Other analysis variables (THESE ARE CORRECT)
+        % Other analysis variables (THESE ARE OK)
         h0 = 1.0;               % preload height, in
         delta0 = 0.4;           % deflection, in
         hdef = h0 - delta0;     % deflection height, in
@@ -31,7 +31,6 @@ function [xopt, fopt, exitflag, output] = HW1()
         Sf = 1.5;
         Q = 150000;             % psi
         delta_f = 0;            % in
-        
         
         % Analysis functions
         k = (G*d^4)/(8*(D^3)*n)            % spring stiffness
@@ -43,7 +42,7 @@ function [xopt, fopt, exitflag, output] = HW1()
         F_p = k*delta_p                    % preload force
         F_def = k*delta_def;                % force at full deflection
         F_s = k*delta_s;                    % force at solid height
-        K = (4*D-d)/(4*(D-d))+0.62*(d/D)   % Wahl factor
+        K = ((4*D)-d)/(4*(D-d))+0.62*(d/D)   % Wahl factor
         tau_f = ((8*F_f*D)/(pi*d^3))*K;     % stress at full height (zero)
         tau_p = ((8*F_p*D)/(pi*d^3))*K;     % stress at preload height
         tau_def = ((8*F_def*D)/(pi*d^3))*K; % stress at full deflection
