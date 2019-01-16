@@ -16,7 +16,10 @@ function [xopt, fopt, exitflag, output] = optimize_template()
     function [f, c, ceq] = objcon(x)
         
         % Design variables
-        
+        d = x(1);   % wire diameter
+        D = x(2);   % coil diameter
+        n = x(3);   % number of coils
+        hf = x(4);  % 
         
         % Other analysis variables
         h0 = 1.0;       % preload height
@@ -34,7 +37,7 @@ function [xopt, fopt, exitflag, output] = optimize_template()
         % Inequality constraints
         c = zeros(3,1);
         c(1) = stress_hs - Sy;  % stress at hs <= Sy
-        
+        c(2) = 
         
         % Equality constraints
         ceq = [];
