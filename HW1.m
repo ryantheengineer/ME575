@@ -4,7 +4,7 @@ function [xopt, fopt, exitflag, output] = HW1()
     %var= d     D    n    hf    %design variables
     x0 = [0.05, 0.5, 10,  1.5];
     ub = [0.2,  0.74,100,  20];
-    lb = [0.01, 0.5, 1,   0.01];
+    lb = [0.01, 0.4, 1,   0.01];
 
     % ------------Linear constraints------------
     A = [];
@@ -54,12 +54,12 @@ function [xopt, fopt, exitflag, output] = HW1()
         f = -F_preload;
         
         % Inequality constraints
-        c = zeros(9,1); % HOW MANY INEQUALITY CONSTRAINTS?
+        c = zeros(9,1);
         c(1) = tau_hs - Sy;  % stress at hs <= Sy
         c(2) = D + d - 0.75;
         c(3) = d - 0.2;
-        c(4) = 0.01 - d;    % not sure if this is the proper way to set this up
-        c(5) = (hf-delta_max) - hs - 0.05; % hs at least 0.05 in below lowest deflection point
+        c(4) = 0.01 - d;    
+        c(5) = hs + 0.05 - (hf-delta_max); % hs at least 0.05 in below lowest deflection point
         c(6) = tau_a - (Se/Sf);
         c(7) = tau_a + tau_m -(Sy/Sf);
         c(8) = (D/d) - 16;
