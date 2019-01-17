@@ -5,6 +5,8 @@ function [xopt, fopt, exitflag, output] = HW1()
     x0 = [0.050, 0.500, 10.00, 1.500];      % Starting point
     ub = [0.250, 1.000, 100.0, 20.00];      % Upper bound
     lb = [0.010, 0.200, 1.000, 0.010];      % Lower bound
+    ub = [0.200, 1.000, 100.0, 20.00];      % Upper bound
+    lb = [0.01, 0.200, 1.000, 0.010];      % Lower bound
 
     % ------------Linear constraints------------
     A = [];
@@ -63,16 +65,14 @@ function [xopt, fopt, exitflag, output] = HW1()
         f = -F_p;                           % Maximize the preload force
         
         % Inequality constraints
-        c = zeros(9,1);
+        c = zeros(7,1);
         c(1) = tau_a - Sefratio;            % tau_a <= Se/Sf
         c(2) = tau_amsum - Syfratio;        % tau_a + tau_m <= Sy/Sf
         c(3) = dratio - 16;                 % D/d <= 16
         c(4) = 4 - dratio;                  % 4 <= D/d
-        c(5) = d - 0.2;                     % d <= 0.2
-        c(6) = 0.01 - d;                    % 0.01 <= d
-        c(7) = dsum - 0.75;                 % D + d <= 0.75
-        c(8) = 0.05 - clash;                % 0.05 <= clash allowance
-        c(9) = tau_s - Sy;                  % tau_s <= Sy
+        c(5) = dsum - 0.75;                 % D + d <= 0.75
+        c(6) = 0.05 - clash;                % 0.05 <= clash allowance
+        c(7) = tau_s - Sy;                  % tau_s <= Sy
         
         % Equality constraints
         ceq = [];

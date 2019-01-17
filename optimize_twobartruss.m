@@ -45,6 +45,7 @@ function [xopt, fopt, exitflag, output] = optimize_twobartruss()
         %equality constraints (ceq=0)
         ceq = [];
 
+        
     end
 
 
