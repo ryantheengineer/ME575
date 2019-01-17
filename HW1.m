@@ -2,7 +2,7 @@ function [xopt, fopt, exitflag, output] = HW1()
 
     % ------------Starting point and bounds------------
     %var= d      D      n      hf           % Design variables
-    x0 = [0.050, 0.500, 10.00, 1.500];      % Starting point
+    x0 = [0.20, 0.210, 90.00, 0.020];      % Starting point
     ub = [0.200, 1.000, 100.0, 20.00];      % Upper bound
     lb = [0.01, 0.200, 1.000, 0.010];      % Lower bound
 
