@@ -3,8 +3,6 @@ function [xopt, fopt, exitflag, output] = HW1()
     % ------------Starting point and bounds------------
     %var= d      D      n      hf           % Design variables
     x0 = [0.050, 0.500, 10.00, 1.500];      % Starting point
-    ub = [0.250, 1.000, 100.0, 20.00];      % Upper bound
-    lb = [0.010, 0.200, 1.000, 0.010];      % Lower bound
     ub = [0.200, 1.000, 100.0, 20.00];      % Upper bound
     lb = [0.01, 0.200, 1.000, 0.010];      % Lower bound
 
@@ -17,13 +15,13 @@ function [xopt, fopt, exitflag, output] = HW1()
     % ------------Objective and Non-linear Constraints------------
     function [f, c, ceq] = objcon(x)
         
-        % Design variables (THESE ARE OK)
+        % Design variables
         d =  x(1);      % wire diameter
         D =  x(2);      % coil diameter
         n =  x(3);      % number of coils
         hf = x(4);      % unloaded height
         
-        % Other analysis variables (THESE ARE OK)
+        % Other analysis variables
         h0 = 1.0;               % preload height, in
         delta0 = 0.4;           % deflection, in
         hdef = h0 - delta0;     % deflection height, in
