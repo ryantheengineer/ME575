@@ -1,10 +1,10 @@
-function [xopt, fopt, exitflag, output] = optimize_template()
+function [xopt, fopt, exitflag, output] = HW2()
 
     % ------------Starting point and bounds------------
     %var= V     D      d            % Design variables
-    x0 = [];
-    ub = [];
-    lb = [];
+    x0 = [, ];
+    ub = [,     0.5,   ];
+    lb = [,            0.0005];
 
     % ------------Linear constraints------------
     A = [];
@@ -27,30 +27,38 @@ function [xopt, fopt, exitflag, output] = optimize_template()
         g = 32.17;          % acceleration due to gravity, ft/s^2
         rho_w = 62.4;       % density of water, lbm/ft^3
         gamma = 168.5;      % limestone density
+        S = gamma/rho_w;    % limestone specific gravity
         mu = 7.392*10^-4;   % viscosity of water lbm/(ft*s)
+        gc = 32.17;         % conversion factor between lbf and lbm
         
         
         % Analysis functions
-        c = W/(Q_w + W);
-        A = (pi/4)*D^2;
-        rho = rho_w + c*(gamma-rho_w);
-        mdot = rho*A*V;     % CHECK THIS TO MAKE SURE THE RIGHT RHO IS USED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        Q = A*V;            % CHECK TO MAKE SURE THIS IS USED PROPERLY AS WELL!!!!!!!!!!!!!!!!!!!!!
+        C = W/(Q_w + W);
+        Area = (pi/4)*D^2;
+        rho = rho_w + C*(gamma-rho_w);
+        mdot = rho*Area*V;     % CHECK THIS TO MAKE SURE THE RIGHT RHO IS USED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        Q = Area*V;
         Pg = 218*W*((1/sqrt(d)) - (1/sqrt(a)));
         CdRpsq_calculated = 4*g*rho_w*(d^3)*((gamma-rho_w)/(3*mu^2));
         Cd = dragReynolds(CdRpsq_calculated);
         Rw = (rho_w*V*D)/mu;
         fw = fw_function(Rw);
-        f = fw*((rho_w/rho) + 150*c*(rho_w/rho)*((g*D*(S-1))/((V^2)*sqrt(Cd)))^1.5);
-        delta_p = (f*rho*L*V^2)/((D^2)*g_c);    % 
-        
+        f = fw*((rho_w/rho) + 150*C*(rho_w/rho)*...
+            ((g*D*(S-1))/((V^2)*sqrt(Cd)))^1.5);
+        delta_p = (f*rho*L*V^2)/((D^2)*gc);    % 
+        Pf = delta_p*Q;
+        Vc = ((40*g*C*(S-1)*D)/sqrt(Cd))^0.5;
+        horsepower = (Pf + Pg)/550;
+        cost = NPV(horsepower,0.07,7); % develop cost function here
         
         % Objective function
-        
+        f = cost;               % Minimize the total cost
         
         % Inequality constraints
         c = zeros(7,1);
-        c(1) = ;            % 
+        c(1) = (1.1*Vc) - V;        % 1.1*Vc <= V
+        c(2) = C - 0.4;             % C <= 0.4
+        c(3) = 
         
         
         % Equality constraints
@@ -61,7 +69,10 @@ function [xopt, fopt, exitflag, output] = optimize_template()
     % ------------Call fmincon------------
     options = optimoptions(@fmincon, 'display', 'iter-detailed');
     [xopt, fopt, exitflag, output] = fmincon(@obj, x0, A, b, Aeq, beq, lb, ub, @con, options);
-    
+    xopt
+    fopt
+    [~,c,~] = objcon(xopt);
+    c
     
     % ------------Separate obj/con (do not change)------------
     function [f] = obj(x)
