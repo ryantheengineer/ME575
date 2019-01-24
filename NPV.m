@@ -7,7 +7,7 @@ power_cost = horsepower*8*300*0.07; % Power cost, $/year
 
 totalcost = 0;
 for t = 0:n
-    if t = 0
+    if t == 0
         Rt = capital_cost + power_cost;
     else
         Rt = power_cost;
