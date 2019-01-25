@@ -14,7 +14,7 @@ V = 7.2398;                 % Value chosen for V from calculated optimums
 
  
 % design variables at mesh points
-[D,d] = meshgrid(0.1:0.01:0.5,0.0005:0.0005:0.01);
+[D,d] = meshgrid(0:0.01:0.5,0:0.0005:0.01);
  
 % equations
 Concentration = 4*W./(pi*gamma*V*(D.^2));
@@ -34,7 +34,7 @@ horsepower = Pf + Pg;
 cost = NPV(horsepower,0.07,7); % develop cost function here
 
 figure(1)
-[C,h] = contour(D,d,cost,[6e+5,7e+5,8e+5],'k-');
+[C,h] = contour(D,d,cost,[5e+05,6.2501e+05,1e+06,1e+07,1.1e+07],'k-');
 clabel(C,h,'Labelspacing',250);
 title('Limestone Slurry Contour Plot');
 xlabel('Pipe Diameter');
@@ -42,11 +42,12 @@ ylabel('Particle Diameter After Grinding');
 hold on;
 
 % solid lines to show constraint boundaries
-contour(D,d,((1.1*Vc) - V),[0.0,0.0],'b','LineWidth',2);
-contour(D,d,(Concentration - 0.4),[100,100],'r','LineWidth',2);
-
+contour(D,d,((1.1*Vc) - V),[0,0],'b','LineWidth',2);
+contour(D,d,(Concentration - 0.4),[0,0],'r','LineWidth',2);
+contour(D,d,(D - 0.5),[0,0],'g','LineWidth',2);
+contour(D,d,(d - 0.01),[0,0],'y','LineWidth',2);
+contour(D,d,(0.0005 - d),[0,0],'c','LineWidth',2);
 
 % show a legend
-% legend('F_p','\tau_a <= S_e/S_f','\tau_a+\tau_m <= S_y/S_f','D/d <= 16',...
-%        'D/d >= 4','D + d <= 0.75','clash <= 0.05','\tau_s <= S_y')
+legend('Cost','1.1V_c <= V','C <= 0.4','D <= 0.5','d <= 0.01','d >= 0.0005')
 hold off;
