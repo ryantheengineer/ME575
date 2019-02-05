@@ -10,9 +10,13 @@
         %set starting step length
         alpha = 0.5;
      
-        if (algoflag == 1)     % steepest descent
+        if (algoflag == 1)      % steepest descent
            s = srchsd(grad)          
         end
+        
+%         if (algoflag == 2)      % BFGS quasi-Newton
+%             s = srchbfgs(grad)
+%         end
         
         % take a step
         xnew = x + alpha*s;
@@ -20,7 +24,7 @@
         
         xopt = xnew;
         fopt = fnew;
-        exitflag = 0;
+        exitflag = 0;   % This is automatically set to stop the solver from iterating for a long time, and it's why xopt doesn't result in a minimum right now
      end
      
      % get steepest descent search direction as a column vector
