@@ -1,22 +1,39 @@
 
      function [xopt, fopt, exitflag] = fminun(obj, gradobj, x0, stoptol, algoflag)
-        
+        global nobj
         % get function and gradient at starting point
         [n,~] = size(x0); % get number of variables
         f = obj(x0)
-        grad = gradobj(x0);
+        grad = gradobj(x0)
         x = x0;
+        searchcount = 0;
         
         %set starting step length
-        alpha = 0.1;
+        alpha = 0.05;
      
         if (algoflag == 1)      % steepest descent
-        
-            s = srchsd(grad)
-            alpha_star = minimizing_step(obj,s,x,f,alpha)
-            [xnew,fnew] = take_step(obj,x,alpha_star,s)
-            % Check to see if the gradient is within the desired tolerance
-            grad = gradobj(xnew)
+            while nobj < 20000
+%                 disp('New search direction');
+%                 searchcount = searchcount + 1
+                s = srchsd(grad)
+                alpha_star = minimizing_step(obj,s,x,f,alpha);
+                [xnew,fnew] = take_step(obj,x,alpha_star,s);
+                % Check to see if the gradient is within the desired tolerance
+                grad = gradobj(xnew)
+                if abs(grad(1))>stoptol || abs(grad(2))>stoptol || abs(grad(3))>stoptol % if the gradient is not smaller than stoptol
+                    x = xnew;
+                    f = fnew;
+                    alpha = 0.05;
+                    if searchcount > 2000
+                        exitflag = 0;
+                        break
+                    end
+                    continue
+                else
+                    exitflag = 1;
+                    break
+                end
+            end
             
         end
         
@@ -69,7 +86,7 @@
                 % data with a parabola, and step to the minimum of the
                 % parabola.
                 alpha = alpha/2;
-                xnew = x +alpha*s;
+                xnew = x +alpha*s
                 fnew = obj(xnew);
                 f_alpha_temp = [fnew,alpha];
                 f_alpha = [f_alpha; f_alpha_temp];
@@ -82,19 +99,33 @@
             end
         end
         
+        % Reorder f_alpha so that the "stepping back" point is placed
+        % second to last, so it's in the proper step order, like Fig. 3.7
+        % in the notes.
+        
+        [M,~] = size(f_alpha);
+        
+        f_alpha_temp1 = f_alpha(end,:);
+        f_alpha_temp2 = f_alpha(end-1,:);
+        f_alpha(M,:) = f_alpha_temp2;
+        f_alpha(M-1,:) = f_alpha_temp1;
+        
         % Once we have a set of points that bracket the true minimum, we
         % pick the minimum of our points and the two that are next to it in
         % the line search (how to do this I'm not sure yet). Then we use
         % the formula found on page 18 of chapter 3 in the notes to solve
         % for alpha_star
         
-        alpha1 = f_alpha(end-3,2);
-        alpha2 = f_alpha(end-2,2);
-        alpha3 = f_alpha(end,2);
         
-        f1 = f_alpha(end-3,1);
-        f2 = f_alpha(end-2,1);
-        f3 = f_alpha(end,1);
+        
+        
+        alpha1 = f_alpha(1,2);
+        alpha2 = f_alpha(2,2);
+        alpha3 = f_alpha(3,2);
+        
+        f1 = f_alpha(1,1);
+        f2 = f_alpha(2,1);
+        f3 = f_alpha(3,1);
         
         delta_alpha = alpha2-alpha1;
         

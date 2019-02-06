@@ -33,7 +33,7 @@
     % get gradient as a column vector
      function [grad] = gradobj(x)
         global ngrad
-        %gradient for test function 1
+        %gradient for quadratic function
         grad(1,1) = 3 + 12*x(1) - 2*x(2) - x(3);
         grad(2,1) = -6 - 2*x(1) + 2*x(2);
         grad(3,1) = 8 - x(1) + x(3);
