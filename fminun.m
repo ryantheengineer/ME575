@@ -8,12 +8,13 @@
         x = x0;       
      
         if (algoflag == 1)      % steepest descent
-            while nobj < 20000
+            while nobj < 40000
                 % set an approach tolerance for Newton step
                 apprchtol = 1;
 
                 %set starting step length
-                alpha = 0.12;
+%                 alpha = 0.12; % step length for quadratic
+                alpha = 0.01
                 s = srchsd(grad);
                 alpha_star = minimizing_step(obj,s,x,f,alpha);
                 [xnew,fnew] = take_step(obj,x,alpha_star,s);
@@ -141,15 +142,15 @@
         syms x1 x2 x3
         % Enter the desired function (must match the function in
         % fminunDrivHW.m):
-        % Quadratic test function
-        f = 20 + 3*x1 - 6*x2 + 8*x3 + 6*x1^2 - 2*x1*x2 - x1*x3 + x2^2 + 0.5*x3^2;
-        H = hessian(f,[x1,x2,x3]);
-        H = double(H);
-        
-%         % Rosenbrock's function
-%         f = 100*(x(2) - x(1)^2)^2 + (1 - x(1))^2;
-%         H = hessian(f,[x1,x2]);
+%         % Quadratic test function
+%         f = 20 + 3*x1 - 6*x2 + 8*x3 + 6*x1^2 - 2*x1*x2 - x1*x3 + x2^2 + 0.5*x3^2;
+%         H = hessian(f,[x1,x2,x3]);
 %         H = double(H);
+        
+        % Rosenbrock's function
+        f = 100*(x2 - x1^2)^2 + (1 - x1)^2;
+        H = hessian(f,[x1,x2]);
+        H = double(H);
         
         grad = gradobj(x);
         delta_x = -inv(H)*grad;
