@@ -135,9 +135,22 @@
     end
     
     function [xnew,fnew] = Newton_quad(obj,gradobj,x)
-        H = [12, -2, -1;
-             -2,  2,  0;
-             -1,  0,  1];
+        % REWRITE USING HESSIAN FUNCTION AND SUBS() TO SOLVE FOR THE VALUES
+        % OF THE HESSIAN AT THE REQUESTED X POINTS
+%         H = hessian(obj(x))
+        syms x1 x2 x3
+        % Enter the desired function (must match the function in
+        % fminunDrivHW.m):
+        % Quadratic test function
+        f = 20 + 3*x1 - 6*x2 + 8*x3 + 6*x1^2 - 2*x1*x2 - x1*x3 + x2^2 + 0.5*x3^2;
+        H = hessian(f,[x1,x2,x3]);
+        H = double(H);
+        
+%         % Rosenbrock's function
+%         f = 100*(x(2) - x(1)^2)^2 + (1 - x(1))^2;
+%         H = hessian(f,[x1,x2]);
+%         H = double(H);
+        
         grad = gradobj(x);
         delta_x = -inv(H)*grad;
         xnew = x + delta_x;
