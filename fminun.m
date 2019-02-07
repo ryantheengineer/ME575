@@ -5,17 +5,12 @@
         [n,~] = size(x0); % get number of variables
         f = obj(x0)
         grad = gradobj(x0)
-        x = x0;
-        searchcount = 0;
-        
-        
-        
-       
+        x = x0;       
      
         if (algoflag == 1)      % steepest descent
             while nobj < 20000
                 % set an approach tolerance for Newton step
-                apprchtol = 6;
+                apprchtol = 1;
 
                 %set starting step length
                 alpha = 0.12;
