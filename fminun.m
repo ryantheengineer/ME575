@@ -27,10 +27,6 @@
                 if abs(grad(1))>apprchtol || abs(grad(2))>apprchtol || abs(grad(3))>apprchtol % if the gradient is not smaller than stoptol
                     x = xnew;
                     f = fnew;
-%                     if searchcount > 2000
-%                         exitflag = 0;
-%                         break
-%                     end
                     continue
                 else
                     x = xnew;
@@ -39,6 +35,17 @@
                     exitflag = 1;
                     break
                 end
+%                 if abs(grad(1))>apprchtol || abs(grad(2))>apprchtol || abs(grad(3))>apprchtol % if the gradient is not smaller than stoptol
+%                     x = xnew;
+%                     f = fnew;
+%                     continue
+%                 else
+%                     x = xnew;
+%                     f = fnew;
+%                     [xnew,fnew] = Newton_quad(obj,gradobj,x);
+%                     exitflag = 1;
+%                     break
+%                 end
             end
             
         end
