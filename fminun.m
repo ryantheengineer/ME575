@@ -8,28 +8,34 @@
         x = x0;
         searchcount = 0;
         
-        %set starting step length
-        alpha = 0.05;
+        
+        
+       
      
         if (algoflag == 1)      % steepest descent
             while nobj < 20000
-%                 disp('New search direction');
-%                 searchcount = searchcount + 1
-                s = srchsd(grad)
+                % set an approach tolerance for Newton step
+                apprchtol = 6;
+
+                %set starting step length
+                alpha = 0.12;
+                s = srchsd(grad);
                 alpha_star = minimizing_step(obj,s,x,f,alpha);
                 [xnew,fnew] = take_step(obj,x,alpha_star,s);
                 % Check to see if the gradient is within the desired tolerance
                 grad = gradobj(xnew)
-                if abs(grad(1))>stoptol || abs(grad(2))>stoptol || abs(grad(3))>stoptol % if the gradient is not smaller than stoptol
+                if abs(grad(1))>apprchtol || abs(grad(2))>apprchtol || abs(grad(3))>apprchtol % if the gradient is not smaller than stoptol
                     x = xnew;
                     f = fnew;
-                    alpha = 0.05;
-                    if searchcount > 2000
-                        exitflag = 0;
-                        break
-                    end
+%                     if searchcount > 2000
+%                         exitflag = 0;
+%                         break
+%                     end
                     continue
                 else
+                    x = xnew;
+                    f = fnew;
+                    [xnew,fnew] = Newton_quad(obj,gradobj,x);
                     exitflag = 1;
                     break
                 end
@@ -49,7 +55,10 @@
             
             
                 
-        
+        grad = gradobj(xnew)
+        if grad > stoptol
+            error('Not under stoptol. Adjust apprchtol and run again.');
+        end
         xopt = xnew;
         fopt = fnew;
         
@@ -79,6 +88,7 @@
                 alpha = 2*alpha;    % double alpha for the next step
                 f_alpha_temp = [fnew,alpha];
                 f_alpha = [f_alpha; f_alpha_temp];
+                f = fnew;   % set the new f for a point of comparison on the next time through the loop
                 count = count + 1;
                 continue
             else
@@ -86,15 +96,9 @@
                 % data with a parabola, and step to the minimum of the
                 % parabola.
                 alpha = alpha/2;
-                xnew = x +alpha*s
-                fnew = obj(xnew);
                 f_alpha_temp = [fnew,alpha];
                 f_alpha = [f_alpha; f_alpha_temp];
-                
-%                 % (CHECK IF THE LAST POINT IS IN BETWEEN THE PREVIOUS TWO
-%                 % POINTS)
-%                 if x_f_alpha(end,2)
-%                 
+                  
                 break
             end
         end
@@ -108,16 +112,7 @@
         f_alpha_temp1 = f_alpha(end,:);
         f_alpha_temp2 = f_alpha(end-1,:);
         f_alpha(M,:) = f_alpha_temp2;
-        f_alpha(M-1,:) = f_alpha_temp1;
-        
-        % Once we have a set of points that bracket the true minimum, we
-        % pick the minimum of our points and the two that are next to it in
-        % the line search (how to do this I'm not sure yet). Then we use
-        % the formula found on page 18 of chapter 3 in the notes to solve
-        % for alpha_star
-        
-        
-        
+        f_alpha(M-1,:) = f_alpha_temp1;        
         
         alpha1 = f_alpha(1,2);
         alpha2 = f_alpha(2,2);
@@ -133,6 +128,16 @@
      end
  
     function [xnew,fnew] = take_step(obj,x,alpha_star,s)
-             xnew = x + alpha_star*s;
-             fnew = obj(xnew);
+        xnew = x + alpha_star*s;
+        fnew = obj(xnew);
+    end
+    
+    function [xnew,fnew] = Newton_quad(obj,gradobj,x)
+        H = [12, -2, -1;
+             -2,  2,  0;
+             -1,  0,  1];
+        grad = gradobj(x);
+        delta_x = -inv(H)*grad;
+        xnew = x + delta_x;
+        fnew = obj(xnew);
     end
