@@ -1,6 +1,7 @@
 
      function [xopt, fopt, exitflag] = fminun(obj, gradobj, x0, stoptol, algoflag)
         global nobj
+        global ngrad
         % get function and gradient at starting point
         [n,~] = size(x0); % get number of variables
         f = obj(x0)
@@ -31,32 +32,45 @@
                     exitflag = 1;
                     break
                 end
-%                 if abs(grad(1))>apprchtol || abs(grad(2))>apprchtol || abs(grad(3))>apprchtol % if the gradient is not smaller than stoptol
-%                     x = xnew;
-%                     f = fnew;
-%                     continue
-%                 else
-%                     x = xnew;
-%                     f = fnew;
-%                     [xnew,fnew] = Newton_quad(obj,gradobj,x);
-%                     exitflag = 1;
-%                     break
-%                 end
             end
-            
         end
         
-%         if (algoflag == 2)      % BFGS quasi-Newton
-%             s = srchbfgs(grad)
-%         end
-        
-%             if all(abs(grad)>stoptol)   % if the gradient is not smaller than the
+        % BFGS quasi-Newton
+        if (algoflag == 2)
+            % Define initial N and search direction (s normalized)
+            N = eye(n);
+            s = srchbfgs(grad,N);
+            
+            while ngrad < 1000
+                % Execute line search in direction s, and get xnew and gradnew
+                alpha = 0.12;
+                alpha_star = minimizing_step(obj,s,x,f,alpha);
+                [xnew,fnew] = take_step(obj,x,alpha_star,s);
+                gradnew = gradobj(xnew);
 
-        % while the number of function calls is less than our set maximum
-%         while nobj < 1000   
-            
-            
-            
+                % Solve for delta_x and gamma
+                delta_x = xdist(x,xnew);
+                gamma = get_gamma(grad,gradnew);
+
+                % Solve for Nnew
+                Nnew = BFGS_update(N,gamma,delta_x);
+
+                % Solve for new s and repeat
+                grad = gradnew;
+                x = xnew;
+                f = fnew;
+                N = Nnew;
+                s = srchbfgs(grad,N);
+                
+                % Check to see if gradnew is within the desired tolerance
+                if abs(grad(1))>stoptol || abs(grad(2))>stoptol || abs(grad(3))>stoptol % if the gradient is not smaller than stoptol
+                    continue
+                else
+                    exitflag = 1;
+                    break
+                end
+            end
+        end            
                 
         grad = gradobj(xnew)
         if grad > stoptol
@@ -68,6 +82,8 @@
         exitflag = 0;   % This is automatically set to stop the solver from iterating for a long time, and it's why xopt doesn't result in a minimum right now
      end
      
+     
+     %% Steepest descent functions
      % get steepest descent search direction as a column vector
      function [s] = srchsd(grad)
         mag = sqrt(grad'*grad);
@@ -142,18 +158,45 @@
         syms x1 x2 x3
         % Enter the desired function (must match the function in
         % fminunDrivHW.m):
-%         % Quadratic test function
-%         f = 20 + 3*x1 - 6*x2 + 8*x3 + 6*x1^2 - 2*x1*x2 - x1*x3 + x2^2 + 0.5*x3^2;
-%         H = hessian(f,[x1,x2,x3]);
-%         H = double(H);
-        
-        % Rosenbrock's function
-        f = 100*(x2 - x1^2)^2 + (1 - x1)^2;
-        H = hessian(f,[x1,x2]);
+        % Quadratic test function
+        f = 20 + 3*x1 - 6*x2 + 8*x3 + 6*x1^2 - 2*x1*x2 - x1*x3 + x2^2 + 0.5*x3^2;
+        H = hessian(f,[x1,x2,x3]);
         H = double(H);
+        
+%         % Rosenbrock's function
+%         f = 100*(x2 - x1^2)^2 + (1 - x1)^2;
+%         H = hessian(f,[x1,x2]);
+%         H = double(H);
         
         grad = gradobj(x);
         delta_x = -inv(H)*grad;
         xnew = x + delta_x;
         fnew = obj(xnew);
+    end
+    
+    
+    %% BFGS-specific functions
+    % Get search direction using quasi-Newton method
+    function [s] = srchbfgs(grad,N)
+        s = -N*grad;
+        mag = sqrt(s'*s);
+        s = s/mag;
+    end
+    
+    % Solve for gamma
+    function [gamma] = get_gamma(grad,gradnew)
+        gamma = gradnew-grad;
+    end
+    
+    function [delta_x] = xdist(x,xnew)
+        delta_x = xnew - x;
+    end
+    
+    % BFGS update
+    function [Nnew] = BFGS_update(N,gamma,delta_x)
+        firstterm = 1 + (gamma'*N*gamma)/(delta_x'*gamma);
+        secondterm = (delta_x*delta_x')/(delta_x'*gamma);
+        thirdterm = (delta_x*gamma'*N + N*gamma*delta_x')/(delta_x'*gamma);
+        
+        Nnew = N + firstterm*secondterm - thirdterm;
     end
