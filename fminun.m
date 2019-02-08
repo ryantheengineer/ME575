@@ -9,27 +9,27 @@
         x = x0;       
      
         if (algoflag == 1)      % steepest descent
-            while ngrad < 20000
+            while ngrad < 1000
                 % set an approach tolerance for Newton step
-                apprchtol = 1;
+%                 apprchtol = 1;
 
                 %set starting step length
                 alpha = 0.12; % step length for quadratic
-%                 alpha = 0.01
+%                 alpha = 0.01 % step length for Rosenbrock's
 
                 s = srchsd(grad);
                 alpha_star = linesearch(obj,s,x,f,alpha);
                 [xnew,fnew] = take_step(obj,x,alpha_star,s);
                 gradnew = gradobj(xnew);
                 
-                %Check if alpha_star is correct (should get zero here)
-                alpha_star_check = s'*gradnew
-                % Currently this is giving -1.0002, which indicates that
-                % the line search method is incorrect
+%                 %Check if alpha_star is correct (should get zero here)
+%                 alpha_star_check = s'*gradnew;
+%                 % Currently this is giving -1.0002, which indicates that
+%                 % the line search method is incorrect
 
                 
                 % Check to see if the gradient is within the desired tolerance
-                grad = gradobj(xnew);
+                grad = gradobj(xnew)
                 if abs(grad(1))>stoptol || abs(grad(2))>stoptol || abs(grad(3))>stoptol % if the gradient is not smaller than stoptol
                     x = xnew;
                     f = fnew;
@@ -40,16 +40,6 @@
 %                     [xnew,fnew] = Newton_quad(obj,gradobj,x);
                     exitflag = 1;
                     break
-%                 if abs(grad(1))>apprchtol || abs(grad(2))>apprchtol || abs(grad(3))>apprchtol % if the gradient is not smaller than stoptol
-%                     x = xnew;
-%                     f = fnew;
-%                     continue
-%                 else
-%                     x = xnew;
-%                     f = fnew;
-% %                     [xnew,fnew] = Newton_quad(obj,gradobj,x);
-%                     exitflag = 1;
-%                     break
                 end
             end
         end
@@ -111,54 +101,60 @@
      
      function [alpha_star] = linesearch(obj,s,x,f,alpha)
         % Create holding vectors for the f and alpha values
-        f_alpha = [f,alpha];
+        alpha_vector = zeros(3,1);
+        f_vector = zeros(3,1);
+        
+        alpha_prev = alpha;
+        f_prev = f;
+        
         count = 0;
         
         while count < 1000   % this might not be the right limit
             % take a step
-            xnew = x + alpha*s;
-            fnew = obj(xnew);
+            [~,fnew] = take_step(obj,x,alpha,s);
             
-            % check if the value of fnew is less than f (is the function
+            % check if the value of fnew is less than fprevstep (is the function
             % still decreasing?):
-            if fnew < f
-                x = xnew;   % reset x for the next step
-                alpha = 2*alpha;    % double alpha for the next step
-                f_alpha_temp = [fnew,alpha];
-                f_alpha = [f_alpha; f_alpha_temp];
-                f = fnew;   % set the new f for a point of comparison on the next time through the loop
+            if fnew < f_prev
+                % Save the latest values for fnew as the first end of the
+                % bracket around the minimum
+                alpha_vector(1) = alpha;
+                f_vector(1) = fnew;
+                
+                alpha_prev = alpha;
+                f_prev = f;
+                
+                % Set the next alpha
+                alpha = 2*alpha;
+                
                 count = count + 1;
+                
                 continue
             else
-                % if the function begins to increase, then curve fit the
-                % data with a parabola, and step to the minimum of the
-                % parabola.
-                alpha = alpha/2;
-                f_alpha_temp = [fnew,alpha];
-                f_alpha = [f_alpha; f_alpha_temp];
+                % Set the far end of the bracketing vectors
+                alpha_vector(3) = alpha;
+                f_vector(3) = fnew;
+                
+                % Take a new step that is the average of the previous two
+                % steps
+                alpha = (alpha + alpha_prev)/2;
+                [~,fnew] = take_step(obj,x,alpha,s);
+                
+                alpha_vector(2) = alpha;
+                f_vector(2) = fnew;
                   
                 break
             end
         end
         
-        % Reorder f_alpha so that the "stepping back" point is placed
-        % second to last, so it's in the proper step order, like Fig. 3.7
-        % in the notes.
+        % Renaming for brevity
+        alpha1 = alpha_vector(1);
+        alpha2 = alpha_vector(2);
+        alpha3 = alpha_vector(3);
         
-        [M,~] = size(f_alpha);
-        
-        f_alpha_temp1 = f_alpha(end,:);
-        f_alpha_temp2 = f_alpha(end-1,:);
-        f_alpha(M,:) = f_alpha_temp2;
-        f_alpha(M-1,:) = f_alpha_temp1;        
-        
-        alpha1 = f_alpha(1,2);
-        alpha2 = f_alpha(2,2);
-        alpha3 = f_alpha(3,2);
-        
-        f1 = f_alpha(1,1);
-        f2 = f_alpha(2,1);
-        f3 = f_alpha(3,1);
+        f1 = f_vector(1);
+        f2 = f_vector(2);
+        f3 = f_vector(3);
         
         delta_alpha = alpha2-alpha1;
         
