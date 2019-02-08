@@ -9,28 +9,47 @@
         x = x0;       
      
         if (algoflag == 1)      % steepest descent
-            while nobj < 40000
+            while ngrad < 20000
                 % set an approach tolerance for Newton step
                 apprchtol = 1;
 
                 %set starting step length
-%                 alpha = 0.12; % step length for quadratic
-                alpha = 0.01
+                alpha = 0.12; % step length for quadratic
+%                 alpha = 0.01
+
                 s = srchsd(grad);
-                alpha_star = minimizing_step(obj,s,x,f,alpha);
+                alpha_star = linesearch(obj,s,x,f,alpha);
                 [xnew,fnew] = take_step(obj,x,alpha_star,s);
+                gradnew = gradobj(xnew);
+                
+                %Check if alpha_star is correct (should get zero here)
+                alpha_star_check = s'*gradnew
+                % Currently this is giving -1.0002, which indicates that
+                % the line search method is incorrect
+
+                
                 % Check to see if the gradient is within the desired tolerance
-                grad = gradobj(xnew)
-                if abs(grad(1))>apprchtol || abs(grad(2))>apprchtol || abs(grad(3))>apprchtol % if the gradient is not smaller than stoptol
+                grad = gradobj(xnew);
+                if abs(grad(1))>stoptol || abs(grad(2))>stoptol || abs(grad(3))>stoptol % if the gradient is not smaller than stoptol
                     x = xnew;
                     f = fnew;
                     continue
                 else
                     x = xnew;
                     f = fnew;
-                    [xnew,fnew] = Newton_quad(obj,gradobj,x);
+%                     [xnew,fnew] = Newton_quad(obj,gradobj,x);
                     exitflag = 1;
                     break
+%                 if abs(grad(1))>apprchtol || abs(grad(2))>apprchtol || abs(grad(3))>apprchtol % if the gradient is not smaller than stoptol
+%                     x = xnew;
+%                     f = fnew;
+%                     continue
+%                 else
+%                     x = xnew;
+%                     f = fnew;
+% %                     [xnew,fnew] = Newton_quad(obj,gradobj,x);
+%                     exitflag = 1;
+%                     break
                 end
             end
         end
@@ -41,13 +60,13 @@
             N = eye(n);
             s = srchbfgs(grad,N);
             
-            while ngrad < 1000
+            while ngrad < 2000
                 % Execute line search in direction s, and get xnew and gradnew
                 alpha = 0.12;
-                alpha_star = minimizing_step(obj,s,x,f,alpha);
+                alpha_star = linesearch(obj,s,x,f,alpha);
                 [xnew,fnew] = take_step(obj,x,alpha_star,s);
                 gradnew = gradobj(xnew);
-
+                
                 % Solve for delta_x and gamma
                 delta_x = xdist(x,xnew);
                 gamma = get_gamma(grad,gradnew);
@@ -73,13 +92,13 @@
         end            
                 
         grad = gradobj(xnew)
-        if grad > stoptol
-            error('Not under stoptol. Adjust apprchtol and run again.');
-        end
+%         if grad > stoptol
+%             error('Not under stoptol. Adjust apprchtol and run again.');
+%         end
         xopt = xnew;
         fopt = fnew;
         
-        exitflag = 0;   % This is automatically set to stop the solver from iterating for a long time, and it's why xopt doesn't result in a minimum right now
+        exitflag = 1;   % This is automatically set to stop the solver from iterating for a long time, and it's why xopt doesn't result in a minimum right now
      end
      
      
@@ -90,7 +109,7 @@
         s = -grad/mag;
      end
      
-     function [alpha_star] = minimizing_step(obj,s,x,f,alpha)
+     function [alpha_star] = linesearch(obj,s,x,f,alpha)
         % Create holding vectors for the f and alpha values
         f_alpha = [f,alpha];
         count = 0;

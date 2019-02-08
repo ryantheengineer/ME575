@@ -6,7 +6,7 @@
     ngrad = 0.; % counter for gradient evaluations
     x0 = [1; 1; 1]; % starting point for quadratic function, set to be column vector
 %     x0 = [-1.5; 1]; % starting point for Rosenbrock's function, set to be column vector
-    algoflag = 2; % 1=steepest descent; 2=BFGS quasi-Newton
+    algoflag = 1; % 1=steepest descent; 2=BFGS quasi-Newton
     stoptol = 1.e-3; % stopping tolerance, all gradient elements must be < stoptol  
     
     
