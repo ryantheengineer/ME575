@@ -10,10 +10,7 @@
      
         if (algoflag == 1)      % steepest descent
             while ngrad < 1000
-                % set an approach tolerance for Newton step
-%                 apprchtol = 1;
-
-                %set starting step length
+                % Set starting step length
                 alpha = 0.12; % step length for quadratic
 %                 alpha = 0.01 % step length for Rosenbrock's
 
@@ -24,20 +21,15 @@
                 
 %                 %Check if alpha_star is correct (should get zero here)
 %                 alpha_star_check = s'*gradnew;
-%                 % Currently this is giving -1.0002, which indicates that
-%                 % the line search method is incorrect
-
                 
                 % Check to see if the gradient is within the desired tolerance
                 grad = gradobj(xnew)
-                if abs(grad(1))>stoptol || abs(grad(2))>stoptol || abs(grad(3))>stoptol % if the gradient is not smaller than stoptol
-                    x = xnew;
-                    f = fnew;
+                x = xnew;
+                f = fnew;
+                
+                if abs(grad(1))>stoptol || abs(grad(2))>stoptol || abs(grad(3))>stoptol    
                     continue
                 else
-                    x = xnew;
-                    f = fnew;
-%                     [xnew,fnew] = Newton_quad(obj,gradobj,x);
                     exitflag = 1;
                     break
                 end
@@ -52,7 +44,8 @@
             
             while ngrad < 2000
                 % Execute line search in direction s, and get xnew and gradnew
-                alpha = 0.12;
+%                 alpha = 0.12;
+                alpha = 0.01;
                 alpha_star = linesearch(obj,s,x,f,alpha);
                 [xnew,fnew] = take_step(obj,x,alpha_star,s);
                 gradnew = gradobj(xnew);
