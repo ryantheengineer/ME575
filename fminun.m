@@ -45,13 +45,13 @@
             while ngrad < 2000
                 % Execute line search in direction s, and get xnew and gradnew
 %                 alpha = 0.12;      % alpha for quadratic function
-                alpha = 0.0001;     % alpha for Rosenbrock's function
+                alpha = 0.001;     % alpha for Rosenbrock's function
                 alpha_star = linesearch(obj,s,x,f,alpha);
                 [xnew,fnew] = take_step(obj,x,alpha_star,s);
                 gradnew = gradobj(xnew);
                 
                 % Check if alpha_star is correct (should get zero here)
-                alpha_star_check = s'*gradnew
+                alpha_star_check = s'*gradnew;
                 
                 % Solve for delta_x and gamma
                 delta_x = xdist(x,xnew);
@@ -77,10 +77,10 @@
             end
         end            
                 
-        grad = gradobj(xnew)
-%         if grad > stoptol
-%             error('Not under stoptol. Adjust apprchtol and run again.');
-%         end
+%         grad = gradobj(xnew)
+        if grad > stoptol
+            error('Not under stoptol. Adjust apprchtol and run again.');
+        end
         xopt = xnew;
         fopt = fnew;
         
