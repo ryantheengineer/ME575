@@ -6,7 +6,8 @@
         [n,~] = size(x0); % get number of variables
         f = obj(x0)
         grad = gradobj(x0)
-        x = x0;       
+        x = x0;
+        xsearch = [x0];
      
         if (algoflag == 1)      % steepest descent
             while ngrad < 1000
@@ -48,6 +49,7 @@
                 alpha = 0.001;     % alpha for Rosenbrock's function
                 alpha_star = linesearch(obj,s,x,f,alpha);
                 [xnew,fnew] = take_step(obj,x,alpha_star,s);
+                xsearch = [xsearch,xnew];   % save x vectors that define search pattern
                 gradnew = gradobj(xnew);
                 
                 % Check if alpha_star is correct (should get zero here)
@@ -76,11 +78,9 @@
                 end
             end
         end            
-                
-%         grad = gradobj(xnew)
-        if grad > stoptol
-            error('Not under stoptol. Adjust apprchtol and run again.');
-        end
+
+        save Rosenbrock_search.mat xsearch
+        
         xopt = xnew;
         fopt = fnew;
         
@@ -161,31 +161,7 @@
         xnew = x + alpha_star*s;
         fnew = obj(xnew);
     end
-    
-    function [xnew,fnew] = Newton_quad(obj,gradobj,x)
-        % REWRITE USING HESSIAN FUNCTION AND SUBS() TO SOLVE FOR THE VALUES
-        % OF THE HESSIAN AT THE REQUESTED X POINTS
-%         H = hessian(obj(x))
-        syms x1 x2 x3
-        % Enter the desired function (must match the function in
-        % fminunDrivHW.m):
-        % Quadratic test function
-        f = 20 + 3*x1 - 6*x2 + 8*x3 + 6*x1^2 - 2*x1*x2 - x1*x3 + x2^2 + 0.5*x3^2;
-        H = hessian(f,[x1,x2,x3]);
-        H = double(H);
         
-%         % Rosenbrock's function
-%         f = 100*(x2 - x1^2)^2 + (1 - x1)^2;
-%         H = hessian(f,[x1,x2]);
-%         H = double(H);
-        
-        grad = gradobj(x);
-        delta_x = -inv(H)*grad;
-        xnew = x + delta_x;
-        fnew = obj(xnew);
-    end
-    
-    
     %% BFGS-specific functions
     % Get search direction using quasi-Newton method
     function [s] = srchbfgs(grad,N)
