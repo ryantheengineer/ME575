@@ -27,7 +27,7 @@
                 x = xnew;
                 f = fnew;
                 
-                if abs(grad(1))>stoptol || abs(grad(2))>stoptol || abs(grad(3))>stoptol    
+                if all(abs(grad) > stoptol)
                     continue
                 else
                     exitflag = 1;
@@ -44,11 +44,14 @@
             
             while ngrad < 2000
                 % Execute line search in direction s, and get xnew and gradnew
-%                 alpha = 0.12;
-                alpha = 0.01;
+%                 alpha = 0.12;      % alpha for quadratic function
+                alpha = 0.0001;     % alpha for Rosenbrock's function
                 alpha_star = linesearch(obj,s,x,f,alpha);
                 [xnew,fnew] = take_step(obj,x,alpha_star,s);
                 gradnew = gradobj(xnew);
+                
+                % Check if alpha_star is correct (should get zero here)
+                alpha_star_check = s'*gradnew
                 
                 % Solve for delta_x and gamma
                 delta_x = xdist(x,xnew);
@@ -58,14 +61,14 @@
                 Nnew = BFGS_update(N,gamma,delta_x);
 
                 % Solve for new s and repeat
-                grad = gradnew;
+                grad = gradnew
                 x = xnew;
                 f = fnew;
                 N = Nnew;
                 s = srchbfgs(grad,N);
                 
                 % Check to see if gradnew is within the desired tolerance
-                if abs(grad(1))>stoptol || abs(grad(2))>stoptol || abs(grad(3))>stoptol % if the gradient is not smaller than stoptol
+                if all(abs(grad) > stoptol)
                     continue
                 else
                     exitflag = 1;
