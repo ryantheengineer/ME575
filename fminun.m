@@ -10,14 +10,15 @@
         xsearch = [x0];
      
         if (algoflag == 1)      % steepest descent
-            while ngrad < 1000
+            while ngrad < 100
                 % Set starting step length
-                alpha = 0.12; % step length for quadratic
-%                 alpha = 0.01 % step length for Rosenbrock's
+%                 alpha = 0.12; % step length for quadratic
+                alpha = 0.01 % step length for Rosenbrock's
 
                 s = srchsd(grad);
                 alpha_star = linesearch(obj,s,x,f,alpha);
                 [xnew,fnew] = take_step(obj,x,alpha_star,s);
+                xsearch = [xsearch,xnew];   % save x vectors that define search pattern
                 gradnew = gradobj(xnew);
                 
 %                 %Check if alpha_star is correct (should get zero here)
