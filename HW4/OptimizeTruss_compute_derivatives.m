@@ -15,7 +15,8 @@
     
     % ------------Call fmincon------------
   
-    options = optimoptions(@fmincon,'display','iter-detailed','Diagnostics','on');
+    options = optimoptions(@fmincon,'display','iter-detailed','Diagnostics','on','SpecifyObjectiveGradient',true,'SpecifyConstraintGradient',true);
+%     options = optimoptions(@fmincon,'display','iter-detailed','Diagnostics','on');
     [xopt, fopt, exitflag, output] = fmincon(@objfungrad_forward, x0, A, b, Aeq, beq, lb, ub, @confungrad_forward, options);  
 %     [xopt, fopt, exitflag, output] = fmincon(@obj, x0, A, b, Aeq, beq, lb, ub, @con, options);  
    
