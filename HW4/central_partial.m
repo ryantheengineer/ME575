@@ -2,7 +2,7 @@ function [grad] = central_partial(Truss,ndof, nbc, nelem, E, dens, Node, force, 
 
     x = Elem(:,3);
     n = numel(x);
-    h = 5;
+    h = 0.0001;
     grad = zeros(n,1);
     for i = 1:n
         xtplus = x;

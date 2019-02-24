@@ -1,6 +1,5 @@
 function [f,gradf] = objfungrad_forward(Truss,forward_partial,Data)
-%UNTITLED5 Summary of this function goes here
-%   Detailed explanation goes here
+
     Data;
 
     % % insert areas (design variables) into correct matrix
@@ -8,7 +7,7 @@ function [f,gradf] = objfungrad_forward(Truss,forward_partial,Data)
     %     Elem(i,3) = x(i);
     % end
 
-    % call Truss to get weight and stresses
+    % call Truss to get weight (objective)
     [weight,~] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
 
     %objective function
