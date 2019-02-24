@@ -1,16 +1,16 @@
-function [f,gradf] = objfungrad_forward(Truss,forward_partial,Data)
+function [f,gradf] = objfungrad_forward(ndof, nbc, nelem, E, dens, Node, force, bc, Elem,forward_partial)
 
-    Data
+%     Data
 
     % I THINK THIS MIGHT BE NECESSARY (COULD PUT THIS WHOLE FUNCTION IN
-    % OPTIMIZETRUS_COMPUTEDERIVATIVES, AS OBJ
+    % OPTIMIZETRUSS_COMPUTEDERIVATIVES, AS OBJ
     % % insert areas (design variables) into correct matrix
     % for i=1:nelem
     %     Elem(i,3) = x(i);
     % end
 
     % call Truss to get weight (objective)
-    [weight,~] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
+    [weight,stress] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
 
     %objective function
     f = weight; %minimize weight

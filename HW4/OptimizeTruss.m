@@ -29,7 +29,7 @@
         global nfun;
         
         %get data for truss from Data.m file
-        Data
+        Data;
         
         % insert areas (design variables) into correct matrix
         for i=1:nelem

@@ -17,21 +17,73 @@
   
     options = optimoptions(@fmincon,'display','iter-detailed','Diagnostics','on','SpecifyObjectiveGradient',true,'SpecifyConstraintGradient',true);
 %     options = optimoptions(@fmincon,'display','iter-detailed','Diagnostics','on');
-    [xopt, fopt, exitflag, output] = fmincon(@objfungrad_forward, x0, A, b, Aeq, beq, lb, ub, @confungrad_forward, options);  
+    [xopt, fopt, exitflag, output] = fmincon(@objfungrad, x0, A, b, Aeq, beq, lb, ub, @confungrad, options);  
 %     [xopt, fopt, exitflag, output] = fmincon(@obj, x0, A, b, Aeq, beq, lb, ub, @con, options);  
    
     xopt    %design variables at the minimum
     fopt    %objective function value at the minumum
-    [f, c, ceq] = objcon(xopt);
+%     [f, c, ceq] = objcon(xopt);
+    [f,~] = objfungrad(xopt);
+    [c,ceq,~,~] = confungrad(xopt);
     c
     nfun
 
-    
+    Data
     % ------------Objective------------
-    [f,gradf] = objfungrad_forward(Truss,forward_partial,Data);
+    function [f,gradf] = objfungrad(x)
+        global nfun;
+        
+        %get data for truss from Data.m file
+        Data;
+        
+        % insert areas (design variables) into correct matrix
+        for i=1:nelem
+            Elem(i,3) = x(i);
+        end
+
+        % call Truss to get weight and stresses
+        [weight,~] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
+
+        %objective function
+        f = weight; %minimize weight
+        
+        % Gradient of the objective function
+        if nargout > 1
+            gradf = forward_partial(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
+        end
+        nfun = nfun + 1;
+    end
     
+        
+        
     % ------------Non-linear Constraints------------
-    [c,ceq,DC,DCeq] = confungrad_forward(Truss,forward_partial,Data);
+    function [c,ceq,DC,DCeq] = confungrad(x)
+        global nfun;
+        Data;
+        
+        % insert areas (design variables) into correct matrix
+        for i=1:nelem
+            Elem(i,3) = x(i);
+        end
+    
+        % call Truss to get stresses (constraints)
+        [~,stress] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
+
+        c = zeros(10,1);
+        for i = 1:10
+            c(i) = stress(i);
+        end
+
+        % No nonlinear equality constraints
+        ceq = [];
+
+        % Gradient of the constraints
+        if nargout > 2
+            DC = forward_grad(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
+            DCeq = [];
+        end
+        nfun = nfun + 1;
+    end
     
     
     
