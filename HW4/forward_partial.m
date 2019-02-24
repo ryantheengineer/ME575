@@ -1,9 +1,9 @@
 function [grad] = forward_partial(Truss,ndof, nbc, nelem, E, dens, Node, force, bc, Elem)
     
-    x = Elem(:,3);
+    x = Elem(:,3)
     n = numel(x);
     [fb,~] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
-    h = 0.0001;
+    h = 5;
     grad = zeros(n,1);
     for i = 1:n
         xt = x;
