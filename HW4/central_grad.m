@@ -1,9 +1,8 @@
-function [constraint_partials] = central_grad(Truss,ndof, nbc, nelem, E, dens, Node, force, bc, Elem)
+function [constraint_partials] = central_grad(ndof, nbc, nelem, E, dens, Node, force, bc, Elem)
     
     x = Elem(:,3);
     n = numel(x);
-%     [~,cb] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
-    h = 0.0001;
+    h = 0.001;
     constraint_partials = zeros(n,n);
     
     % Repurpose forward_partial, which goes down the column of Elem, to do
