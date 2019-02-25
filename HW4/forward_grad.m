@@ -3,7 +3,7 @@ function [constraint_partials] = forward_grad(ndof, nbc, nelem, E, dens, Node, f
     x = Elem(:,3);
     n = numel(x);
     [~,cb] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
-    h = 0.00001;
+    h = 0.01;
     constraint_partials = zeros(n,n);
     
     % Repurpose forward_partial, which goes down the column of Elem, to do

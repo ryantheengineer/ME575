@@ -91,7 +91,8 @@
 
         c = zeros(10,1);
         for i = 1:10
-            c(i) = stress(i);
+%             c(i) = stress(i);
+            c(i) = abs(stress(i))-25000;
         end
 
         % No nonlinear equality constraints
@@ -106,57 +107,57 @@
     end
     
     
-    %% CENTRAL DIFFERENCE FUNCTIONS %%
-    % ------------Objective (forward difference)------------
-    function [f,gradf] = objfungrad_central(x)
-        global nfun;
-        
-        %get data for truss from Data.m file
-        Data;
-        
-        % insert areas (design variables) into correct matrix
-        for i=1:nelem
-            Elem(i,3) = x(i);
-        end
-
-        % call Truss to get weight and stresses
-        [weight,~] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
-
-        %objective function
-        f = weight; %minimize weight
-        
-        % Gradient of the objective function
-        if nargout > 1
-            gradf = central_partial(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
-        end
-        nfun = nfun + 1;
-    end
-        
-    % ------------Non-linear Constraints (forward difference)------------
-    function [c,ceq,DC,DCeq] = confungrad_central(x)
-        global nfun;
-        Data;
-        
-        % insert areas (design variables) into correct matrix
-        for i=1:nelem
-            Elem(i,3) = x(i);
-        end
-    
-        % call Truss to get stresses (constraints)
-        [~,stress] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
-
-        c = zeros(10,1);
-        for i = 1:10
-            c(i) = stress(i);
-        end
-
-        % No nonlinear equality constraints
-        ceq = [];
-
-        % Gradient of the constraints
-        if nargout > 2
-            DC = central_grad(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
-            DCeq = [];
-        end
-        nfun = nfun + 1;
-    end
+%     %% CENTRAL DIFFERENCE FUNCTIONS %%
+%     % ------------Objective (forward difference)------------
+%     function [f,gradf] = objfungrad_central(x)
+%         global nfun;
+%         
+%         %get data for truss from Data.m file
+%         Data;
+%         
+%         % insert areas (design variables) into correct matrix
+%         for i=1:nelem
+%             Elem(i,3) = x(i);
+%         end
+% 
+%         % call Truss to get weight and stresses
+%         [weight,~] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
+% 
+%         %objective function
+%         f = weight; %minimize weight
+%         
+%         % Gradient of the objective function
+%         if nargout > 1
+%             gradf = central_partial(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
+%         end
+%         nfun = nfun + 1;
+%     end
+%         
+%     % ------------Non-linear Constraints (forward difference)------------
+%     function [c,ceq,DC,DCeq] = confungrad_central(x)
+%         global nfun;
+%         Data;
+%         
+%         % insert areas (design variables) into correct matrix
+%         for i=1:nelem
+%             Elem(i,3) = x(i);
+%         end
+%     
+%         % call Truss to get stresses (constraints)
+%         [~,stress] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
+% 
+%         c = zeros(10,1);
+%         for i = 1:10
+%             c(i) = stress(i);
+%         end
+% 
+%         % No nonlinear equality constraints
+%         ceq = [];
+% 
+%         % Gradient of the constraints
+%         if nargout > 2
+%             DC = central_grad(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
+%             DCeq = [];
+%         end
+%         nfun = nfun + 1;
+%     end

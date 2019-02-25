@@ -3,7 +3,7 @@ function [grad] = forward_partial(ndof, nbc, nelem, E, dens, Node, force, bc, El
     x = Elem(:,3);
     n = numel(x);
     [fb,~] = Truss(ndof, nbc, nelem, E, dens, Node, force, bc, Elem);
-    h = 0.00001;
+    h = 0.01;
     grad = zeros(n,1);
     for i = 1:n
         % temporary holding variable for perturbation
