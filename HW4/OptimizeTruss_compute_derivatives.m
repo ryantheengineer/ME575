@@ -8,9 +8,9 @@
     nfun = 0;
 
     % USE THIS FLAG TO CHOOSE THE DERIVATIVE TYPE:
-    derivflag = 'forward';
+%     derivflag = 'forward';
 %     derivflag = 'central';
-%     derivflag = 'complex';
+    derivflag = 'complex';
 %     derivflag = 'default';
 
     % ------------Linear constraints------------
@@ -61,7 +61,7 @@
         %inequality constraints (c<=0)
         c = zeros(10,1);         % create column vector
         for i=1:10
-            c(i) = abs(stress(i))-25000; % check stress both pos and neg         
+            c(i) = sqrt((stress(i))^2)-25000; % check stress both pos and neg         
         end
 
         %equality constraints (ceq=0)
@@ -116,12 +116,14 @@
 
         % Gradient of the constraints
         if nargout > 2
-            for i = 1:m
-                for j = 1:n
+            % # of constraints
+            for j = 1:m
+                % # of values in each column
+                for i = 1:n
                     xt = x;
                     xt(i) = xt(i) + h;
                     [~,cxt,~] = objcon(xt);
-                    DC(j,i) = (cxt(j) - c(j))/h;
+                    DC(i,j) = (cxt(j) - c(j))/h;
                 end
                 DCeq = [];
             end
@@ -170,15 +172,15 @@
 
         % Gradient of the constraints
         if nargout > 2
-            for i = 1:m
-                for j = 1:n
+            for j = 1:m
+                for i = 1:n
                     xtplus = x;
                     xtminus = x;
                     xtplus(i) = xtplus(i) + h;
                     xtminus(i) = xtminus(i) - h;
                     [~,cxtplus,~] = objcon(xtplus);
                     [~,cxtminus,~] = objcon(xtminus);
-                    DC(j,i) = (cxtplus(j) - cxtminus(j))/(2*h);
+                    DC(i,j) = (cxtplus(j) - cxtminus(j))/(2*h);
                 end
                 DCeq = [];
             end
@@ -188,17 +190,13 @@
 
 
     %% Complex step functions %%
-    % ------------Central objective------------
+    % ------------Complex step objective------------
     function [f,grad_cs] = obj_complex(x)
         global nfun
 
-        h = 0.001;
+        h = 0.0000001;
         n = numel(x);
         grad_cs = zeros(n,1);
-        hvec = zeros(n,1);
-        for i = 1:n
-            hvec(i) = h;
-        end
 
         %objective function
         [f, ~, ~,] = objcon(x);
@@ -206,22 +204,19 @@
         % Gradient of the objective function
         if nargout > 1
             for i = 1:n
-                xt = x;
-                xt(i) = xt(i) + h;
-                z = complex(xt,hvec);
-                
-                grad_cs(i) = imag(
-                %%%%%%%%%%% WORK ON COMPLEX STEP FUNCTION HERE%%%%%%%
+                z = complex(x,h);
+                [fz,~,~] = objcon(z);
+                grad_cs(i) = imag(fz)/h;
             end
         end
         nfun = nfun + 1;
     end
 
-    % ------------Central constraints------------
+    % ------------Complex step constraints------------
     function [c,ceq,DC,DCeq] = con_complex(x)
         global nfun
 
-        h = 0.001;
+        h = 0.0000001;
         n = numel(x);
         [~, c, ceq] = objcon(x);
         m = numel(c);
@@ -230,15 +225,11 @@
 
         % Gradient of the constraints
         if nargout > 2
-            for i = 1:m
-                for j = 1:n
-                    xtplus = x;
-                    xtminus = x;
-                    xtplus(i) = xtplus(i) + h;
-                    xtminus(i) = xtminus(i) - h;
-                    [~,cxtplus,~] = objcon(xtplus);
-                    [~,cxtminus,~] = objcon(xtminus);
-                    DC(j,i) = (cxtplus(j) - cxtminus(j))/(2*h);
+            for j = 1:m
+                for i = 1:n
+                    z = complex(x,h);
+                    [~,cz,~] = objcon(z);
+                    DC(i,j) = imag(cz(i))/h;
                 end
                 DCeq = [];
             end
