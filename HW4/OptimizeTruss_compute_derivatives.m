@@ -196,6 +196,7 @@
 
         h = 0.0000001;
         n = numel(x);
+        hvec = zeros(1,n);
         grad_cs = zeros(n,1);
 
         %objective function
@@ -203,10 +204,12 @@
 
         % Gradient of the objective function
         if nargout > 1
-            for i = 1:n
-                z = complex(x,h);
-                [fz,~,~] = objcon(z);
-                grad_cs(i) = imag(fz)/h;
+            % step through the elements of x
+            for k = 1:n
+                zt = complex(x,hvec);
+                zt(k) = zt(k) + h*1i;
+                [fz,~,~] = objcon(zt);
+                grad_cs(k) = imag(fz)/h;
             end
         end
         nfun = nfun + 1;
@@ -219,17 +222,20 @@
         h = 0.0000001;
         n = numel(x);
         [~, c, ceq] = objcon(x);
+        hvec = zeros(1,n);
         m = numel(c);
 
         DC = zeros(n,m);
 
         % Gradient of the constraints
         if nargout > 2
+            
             for j = 1:m
-                for i = 1:n
-                    z = complex(x,h);
-                    [~,cz,~] = objcon(z);
-                    DC(i,j) = imag(cz(i))/h;
+                for k = 1:n
+                    zt = complex(x,hvec);
+                    zt(k) = zt(k) + h*1i;
+                    [~,cz,~] = objcon(zt);
+                    DC(k,j) = imag(cz(j))/h;
                 end
                 DCeq = [];
             end
