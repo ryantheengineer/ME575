@@ -61,7 +61,7 @@
         %inequality constraints (c<=0)
         c = zeros(10,1);         % create column vector
         for i=1:10
-            c(i) = sqrt((stress(i))^2)-25000; % check stress both pos and neg         
+            c(i) = (sqrt((stress(i))^2)-25000)/1000; % check stress both pos and neg         
         end
 
         %equality constraints (ceq=0)
@@ -84,7 +84,7 @@
     function [f,gradf] = obj_forward(x)
         global nfun
 
-        h = 0.001;
+        h = 0.000001;
         n = numel(x);
         gradf = zeros(n,1);
 
@@ -107,7 +107,7 @@
     function [c,ceq,DC,DCeq] = con_forward(x)
         global nfun
 
-        h = 0.001;
+        h = 0.000001;
         n = numel(x);
         [~, c, ceq] = objcon(x);
         m = numel(c);
@@ -194,7 +194,7 @@
     function [f,grad_cs] = obj_complex(x)
         global nfun
 
-        h = 0.0000001;
+        h = 0.001;
         n = numel(x);
         hvec = zeros(1,n);
         grad_cs = zeros(n,1);
@@ -219,7 +219,7 @@
     function [c,ceq,DC,DCeq] = con_complex(x)
         global nfun
 
-        h = 0.0000001;
+        h = 0.001;
         n = numel(x);
         [~, c, ceq] = objcon(x);
         hvec = zeros(1,n);
