@@ -1,5 +1,6 @@
 %% HW5.m:
 % Simulated annealing algorithm
+clear;
 
 % Algorithm steps, from 5.5.2.3:
 % 1. Choose a starting design
@@ -67,6 +68,8 @@ end
 
 % Plot the cooling curve
 plot(cycles,objvals);
+xlabel('Cycles');
+ylabel('Objective value');
 % As a check, plot the probabilities, F, and other values that should
 % decrease or have some trend over time here (I think I forgot to update F
 % after each cycle)
