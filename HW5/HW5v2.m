@@ -6,7 +6,7 @@ xs = [5;5];
 fs = objective(xs);
 
 % Select Ps, Pf, N, and calculate Ts, Tf, and F
-Ps = 0.8;               % Probability of acceptance at start
+Ps = 0.7;               % Probability of acceptance at start
 Pf = 0.001;             % Probability of acceptance at finish
 N = 100;                % Number of cycles
 
@@ -15,7 +15,7 @@ Tf = -1/log(Pf);        % Temperature at finish
 F = (Tf/Ts)^(1/(N-1));  % Temperature reduction factor each cycle
 
 % Perturbation information
-delta = 0.5;           % Max perturbation
+delta = 1;           % Max perturbation
 n = 5;                  % Starting number of perturbations per cycle
 
 % Holding variables
@@ -25,6 +25,7 @@ dEavg = 0;
 cycles = [1:N];
 objvals = zeros(1,N);
 Pvec = [0];
+Tvec = zeros(1,N);
 
 % Set starting values
 xc = xs;
@@ -35,6 +36,7 @@ T = Ts;
 for i = 1:N
     % Add the current objective value to the objective vector for plotting
     objvals(i) = objective(xc);
+    Tvec(i) = T;
     
     % Step through the perturbations
     for j = 1:n
@@ -78,7 +80,7 @@ for i = 1:N
     % Decrease the temperature by factor F
     T = F*T;
     % Increase the number of perturbations each cycle
-    n = n+2;
+%     n = n+1;
     % Decrease the maximum perturbation each cycle
     delta = delta*0.9;
 end
@@ -87,6 +89,9 @@ end
 % Plot the cooling curve
 figure(1);
 plot(cycles,objvals);
+hold on
+plot(cycles,Tvec);
+hold off
 xlabel('Cycles');
 ylabel('Objective');
 
