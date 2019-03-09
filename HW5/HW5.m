@@ -27,22 +27,25 @@ cycles = [1:N];
 objvals = zeros(1,N);
 
 for i = 1:N
+    i
     % Add the current objective value to the objective vector
     objvals(i) = objective(xc);
     for j = 1:n
+        j
         % Randomly perturb x within limits set by delta
         perturb = [unifrnd(-delta,delta); unifrnd(-delta,delta)];
         xp = xc + perturb;
         
         % Check if new design is better than the old design
         fp = objective(xp);
+        dE = fp - fc;   % MIGHT NEED TO CHANGE THE ORDER, CHECK LATER
         if fp < fc
             % 4. If the new design is better, accept it as the current design
             xc = xp;
-        else
-            dE = fp - fc;   % MIGHT NEED TO CHANGE THE ORDER, CHECK LATER
+        else            
             if i == 1 && j == 1
                 dEavg = dE;
+            elseif i == 1
                 T = Ts;
             else
                 dEavg = (dEavg + dElast)/2;
