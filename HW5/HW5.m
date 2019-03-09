@@ -6,14 +6,14 @@ clear;
 % 1. Choose a starting design
 xc = [5;5];  % ARBITRARY RIGHT NOW but must be within (-5,5)
 fc = objective(xc);
-n = 10;     % number of perturbations
+n = 15;     % number of perturbations
 
 % 2. Select Ps, Pf, N, and calculate Ts, Tf, and F
-Ps = 0.7;
+Ps = 0.8;
 Pf = 0.001;
 N = 100;     % number of cycles
 
-delta = 0.5;    % Is this the max perturbation?
+delta = 0.1;    % Is this the max perturbation?
 
 Ts = -1/log(Ps);
 Tf = -1/log(Pf);
@@ -22,34 +22,40 @@ F = (Tf/Ts)^(1/(N-1));
 % 3. Randomly perturb the design to different discrete values close to the
 % current design
 dElast = 0;
+dEavg = 0;
 
 cycles = [1:N];
 objvals = zeros(1,N);
+Tvec = zeros(1,N);
+Pvec = [0];
 
 for i = 1:N
-    i
-    % Add the current objective value to the objective vector
+    % Add the current objective value to the objective vector for plotting
     objvals(i) = objective(xc);
     for j = 1:n
-        j
         % Randomly perturb x within limits set by delta
         perturb = [unifrnd(-delta,delta); unifrnd(-delta,delta)];
         xp = xc + perturb;
         
+        if i == 1
+            T = Ts;
+        end
+        
         % Check if new design is better than the old design
         fp = objective(xp);
         dE = fp - fc;   % MIGHT NEED TO CHANGE THE ORDER, CHECK LATER
+        dElast = dE;
+        if i == 1 && j == 1
+            dEavg = abs(dE);
+        else
+            dEavg = abs((dEavg + dElast)/2);
+        end
+        
         if fp < fc
-            % 4. If the new design is better, accept it as the current design
+            % 4. If the new design is better, accept it as current design
             xc = xp;
         else            
-            if i == 1 && j == 1
-                dEavg = dE;
-            elseif i == 1
-                T = Ts;
-            else
-                dEavg = (dEavg + dElast)/2;
-            end
+            
             
             % 5. If the new design is worse, generate a random number 
             % between 0 and 1 using a uniform distribution. Compare this 
@@ -58,30 +64,38 @@ for i = 1:N
             % as the current design.
             randnum = unifrnd(0,1);
             P = Boltzmann(dE,dEavg,T);     % Get Boltzmann probability
+            Pvec = [Pvec;P];
             if randnum < P
                 xc = xp;                
             end
         end
-       dElast = dE; 
+         
     end
     % 7. Decrease temperature according to T(n+1) = F*Tn
     T = F*T;
+    Tvec(i) = T;
 end
 
 
 % Plot the cooling curve
+figure(1);
 plot(cycles,objvals);
+hold on
+plot(cycles,Tvec);
+hold off
 xlabel('Cycles');
 ylabel('Objective value');
 % As a check, plot the probabilities, F, and other values that should
 % decrease or have some trend over time here (I think I forgot to update F
 % after each cycle)
 
+figure(2);
+plot(Pvec);
 
 %% Functions
 % Objective function
 function [f] = objective(x)
-    f = 2 + 0.2*x(1)^2 + 0.2*x(2)^2 - cos(pi*x(1)) - cos(pi*x(2));
+    f = 2. + 0.2*x(1).^2 + 0.2*x(2).^2 - cos(pi*x(1)) - cos(pi*x(2));
 end
 
 % Boltzmann probability
