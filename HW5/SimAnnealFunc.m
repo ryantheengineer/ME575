@@ -16,6 +16,7 @@ function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
         xs = [5;-2];
         fs = objective(xs);
 
+
     %     % Select Ps, Pf, N, and calculate Ts, Tf, and F
     %     Ps = 0.7;               % Probability of acceptance at start
     %     Pf = 0.001;             % Probability of acceptance at finish
@@ -27,7 +28,7 @@ function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
 
     %     % Perturbation information
     %     delta = 1;           % Max perturbation
-        n = 3;                  % Starting number of perturbations per cycle
+        n = 2;                  % Starting number of perturbations per cycle
 
         % Holding variables
         dEavg = 0;
@@ -39,7 +40,7 @@ function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
 
         % Step through the cycles
         for i = 1:N
-            fc = objective(xc);
+%             fc = objective(xc);
             
             % Step through the perturbations
             for j = 1:n
@@ -84,8 +85,10 @@ function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
             fc = objective(xc);
             % Decrease the temperature by factor F
             T = F*T;
-            % Increase the number of perturbations each cycle
-            n = n+2;
+            % Increase the number of perturbations every other cycle
+            if mod(i,3) == 1
+                n = n+1;
+            end
             % Decrease the maximum perturbation each cycle
             delta = delta*deltafactor;
         end
