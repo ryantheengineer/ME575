@@ -1,20 +1,25 @@
 %% SimAnnealFunc:
 % Driveable function version of Homework 5 (Simulated Annealing). Runs 
 
-function [median_optimum] = SimAnnealFunc(xs,Ps,Pf,N,delta,deltafactor,n,numsims)
+function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
+    % Tolerance for declaring an optimum
+    tolerance = 0.001;
+    
+    numsims = 500;
+    
     % Create vector of ending optimums
     optimums = zeros(numsims,1);
     for k = 1:numsims
         
 
         % Choose a starting design
-    %     xs = [5;5];
+        xs = [5;5];
         fs = objective(xs);
 
     %     % Select Ps, Pf, N, and calculate Ts, Tf, and F
     %     Ps = 0.7;               % Probability of acceptance at start
     %     Pf = 0.001;             % Probability of acceptance at finish
-    %     N = 100;                % Number of cycles
+        N = 100;                % Number of cycles
 
         Ts = -1/log(Ps);        % Temperature at start
         Tf = -1/log(Pf);        % Temperature at finish
@@ -22,7 +27,7 @@ function [median_optimum] = SimAnnealFunc(xs,Ps,Pf,N,delta,deltafactor,n,numsims
 
     %     % Perturbation information
     %     delta = 1;           % Max perturbation
-    %     n = 5;                  % Starting number of perturbations per cycle
+        n = 3;                  % Starting number of perturbations per cycle
 
         % Holding variables
 %         dE = 0;
@@ -36,6 +41,8 @@ function [median_optimum] = SimAnnealFunc(xs,Ps,Pf,N,delta,deltafactor,n,numsims
 
         % Step through the cycles
         for i = 1:N
+            fc = objective(xc);
+            
             % Step through the perturbations
             for j = 1:n
                 % Perturb xc by some random value within delta
@@ -49,11 +56,12 @@ function [median_optimum] = SimAnnealFunc(xs,Ps,Pf,N,delta,deltafactor,n,numsims
 
                 % Calculate values for Boltzmann function in case they're needed
                 dE = abs(fp-fc);
-                dElast = dE;
+%                 dElast = dE;
                 if i == 1 && j == 1
                     dEavg = dE;
                 else
-                    dEavg = (dEavg + dElast)/2;
+                    dEavg = (dEavg + dE)/2;
+%                     dEavg = (dEavg + dElast)/2;
                 end
 
                 P = Boltzmann(dE,dEavg,T);
@@ -61,6 +69,7 @@ function [median_optimum] = SimAnnealFunc(xs,Ps,Pf,N,delta,deltafactor,n,numsims
                 % Check if the new design is better than the old design
                 if fp < fc
                     xc = xp;    % Accept as current design if better
+                    fc = objective(xc);
                 else
                     % If the new design is worse, generate a random number and
                     % compare to the Boltzmann probability. If the random number is
@@ -70,6 +79,7 @@ function [median_optimum] = SimAnnealFunc(xs,Ps,Pf,N,delta,deltafactor,n,numsims
 
                     if randnum < P
                         xc = xp;
+                        fc = objective(xc);
                     end
                 end     
             end
@@ -85,7 +95,7 @@ function [median_optimum] = SimAnnealFunc(xs,Ps,Pf,N,delta,deltafactor,n,numsims
         % Save the last calculated fc value
         optimums(k) = fc;
     end
-    median_optimum = median(optimums);
+    pct_success = 100*(sum(optimums<tolerance)/numsims);
 end
 
 %% Functions

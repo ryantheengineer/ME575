@@ -6,8 +6,8 @@ xs = [5;5];
 fs = objective(xs);
 
 % Select Ps, Pf, N, and calculate Ts, Tf, and F
-Ps = 0.7;               % Probability of acceptance at start
-Pf = 0.001;             % Probability of acceptance at finish
+Ps = 0.5;               % Probability of acceptance at start
+Pf = 0.0001;             % Probability of acceptance at finish
 N = 100;                % Number of cycles
 
 Ts = -1/log(Ps);        % Temperature at start
@@ -15,17 +15,20 @@ Tf = -1/log(Pf);        % Temperature at finish
 F = (Tf/Ts)^(1/(N-1));  % Temperature reduction factor each cycle
 
 % Perturbation information
-delta = 1;           % Max perturbation
-n = 5;                  % Starting number of perturbations per cycle
+delta = 1.5;           % Max perturbation
+n = 3;                  % Starting number of perturbations per cycle
 
 % Holding variables
 dE = 0;
-dElast = 0;
+% dElast = 0;
 dEavg = 0;
-cycles = [1:N];
+perturbations = [1:N];
 objvals = zeros(1,N);
-Pvec = [0];
-Tvec = zeros(1,N);
+% Pvec = [0];
+% Tvec = zeros(1,N);
+% acceptreject = [0];
+% acceptcount = 0;
+% acceptfromP = [0];
 
 % Set starting values
 xc = xs;
@@ -36,7 +39,8 @@ T = Ts;
 for i = 1:N
     % Add the current objective value to the objective vector for plotting
     objvals(i) = objective(xc);
-    Tvec(i) = T;
+%     Tvec(i) = T;
+    fc = objective(xc);
     
     % Step through the perturbations
     for j = 1:n
@@ -51,20 +55,24 @@ for i = 1:N
         
         % Calculate values for Boltzmann function in case they're needed
         dE = abs(fp-fc);
-        dElast = dE;
+%         dElast = dE;
         if i == 1 && j == 1
             dEavg = dE;
         else
-            dEavg = (dEavg + dElast)/2;
+            dEavg = (dEavg + dE)/2;
+%             dEavg = (dEavg + dElast)/2;
         end
         
         P = Boltzmann(dE,dEavg,T);
         % Save the value of P
-        Pvec = [Pvec;P];
+%         Pvec = [Pvec;P];
         
         % Check if the new design is better than the old design
         if fp < fc
             xc = xp;    % Accept as current design if better
+            fc = objective(xc);
+%             acceptcount = acceptcount + 1;
+%             acceptreject = [acceptreject;acceptcount];
         else
             % If the new design is worse, generate a random number and
             % compare to the Boltzmann probability. If the random number is
@@ -74,41 +82,43 @@ for i = 1:N
             
             if randnum < P
                 xc = xp;
+                fc = objective(xc);
+%                 acceptcount = acceptcount + 1;
+%                 acceptreject = [acceptreject;acceptcount];
+            else
+%                 acceptreject = [acceptreject;acceptcount];
             end
         end     
     end
     % Decrease the temperature by factor F
     T = F*T;
     % Increase the number of perturbations each cycle
-%     n = n+1;
+    n = n+1;
     % Decrease the maximum perturbation each cycle
-    delta = delta*0.9;
+%     delta = delta*0.99;
 end
         
 
 % Plot the cooling curve
 figure(1);
-plot(cycles,objvals);
-hold on
-plot(cycles,Tvec);
-hold off
+plot(perturbations,objvals);
+% hold on
+% plot(perturbations,Tvec);
+% hold off
 xlabel('Cycles');
 ylabel('Objective');
+title('Cooling Curve');
+
 
 % figure(2);
 % plot(Pvec(2:end));
-
-
-
-
-
-
-% % Check the function by creating a 3D plot
-% [X1,X2] = meshgrid(-5:0.1:5,-5:0.1:5);
-% F = 2 + 0.2*X1.^2 + 0.2*X2.^2 - cos(pi*X1) - cos(pi*X2);
-% surf(X1,X2,F)
-
-
+% xlabel('Evaluation');
+% ylabel('Boltzmann Probability');
+% 
+% figure(3);
+% plot(acceptreject(2:end));
+% xlabel('Evaluation');
+% ylabel('Number of perturbations accepted');
 
 
 %% Functions
