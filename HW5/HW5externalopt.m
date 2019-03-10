@@ -2,9 +2,9 @@ function [xopt, fopt, exitflag, output] = HW5externalopt()
 
     % ------------Starting point and bounds------------
     %var= Ps    Pf      delta  deltafactor    % Design variables
-    x0 = [0.7,  0.001,  1,     0.9];      % Starting point
-    ub = [0.99, 0.1,    2,     1.0];      % Upper bound
-    lb = [0.5,  0.0001, 0.01,  0.1];      % Lower bound
+    x0 = [0.5,  0.001,  1,     0.9];      % Starting point
+    ub = [0.99, 0.1,    4,     1.0];      % Upper bound
+    lb = [0.4,  0.0001, 0.01,  0.1];      % Lower bound
 
     % ------------Linear constraints------------
     A = [];

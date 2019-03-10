@@ -3,7 +3,7 @@
 
 function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
     % Tolerance for declaring an optimum
-    tolerance = 0.001;
+    tolerance = 0.25;
     
     numsims = 500;
     
@@ -13,7 +13,7 @@ function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
         
 
         % Choose a starting design
-        xs = [5;5];
+        xs = [5;-2];
         fs = objective(xs);
 
     %     % Select Ps, Pf, N, and calculate Ts, Tf, and F
@@ -30,8 +30,6 @@ function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
         n = 3;                  % Starting number of perturbations per cycle
 
         % Holding variables
-%         dE = 0;
-%         dElast = 0;
         dEavg = 0;
 
         % Set starting values
@@ -56,12 +54,11 @@ function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
 
                 % Calculate values for Boltzmann function in case they're needed
                 dE = abs(fp-fc);
-%                 dElast = dE;
+
                 if i == 1 && j == 1
                     dEavg = dE;
                 else
                     dEavg = (dEavg + dE)/2;
-%                     dEavg = (dEavg + dElast)/2;
                 end
 
                 P = Boltzmann(dE,dEavg,T);
@@ -88,7 +85,7 @@ function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
             % Decrease the temperature by factor F
             T = F*T;
             % Increase the number of perturbations each cycle
-            n = n+1;
+            n = n+2;
             % Decrease the maximum perturbation each cycle
             delta = delta*deltafactor;
         end
