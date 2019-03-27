@@ -9,9 +9,9 @@
 % 2*x1 - 1.5*x2 - 5 = 0
 
 % Matrix formulation of KKT conditions:
-A = [4 -3   -2;
-    -3  8   1.5;
-     2 -1.5  0];
+A = [ 4 -3   -2;
+     -3  8    1.5;
+      2 -1.5  0];
 
 % x = [x1; x2; lambda];
 
