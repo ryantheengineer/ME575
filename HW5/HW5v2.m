@@ -2,7 +2,7 @@ clear all;
 close all;
 
 % Choose a starting design
-xs = [5;5];
+xs = [-1;-2.5];
 fs = objective(xs);
 xsearch = [xs];
 

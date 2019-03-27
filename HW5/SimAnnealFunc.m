@@ -5,6 +5,8 @@ function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
     % Tolerance for declaring an optimum
     tolerance = 0.25;
     
+    % Number of simulations to run to establish percentage of successful
+    % runs
     numsims = 500;
     
     % Create vector of ending optimums
@@ -17,17 +19,14 @@ function [pct_success] = SimAnnealFunc(Ps,Pf,delta,deltafactor)
         fs = objective(xs);
 
 
-    %     % Select Ps, Pf, N, and calculate Ts, Tf, and F
-    %     Ps = 0.7;               % Probability of acceptance at start
-    %     Pf = 0.001;             % Probability of acceptance at finish
+        % Select Ps, Pf, N, and calculate Ts, Tf, and F
         N = 100;                % Number of cycles
 
         Ts = -1/log(Ps);        % Temperature at start
         Tf = -1/log(Pf);        % Temperature at finish
         F = (Tf/Ts)^(1/(N-1));  % Temperature reduction factor each cycle
 
-    %     % Perturbation information
-    %     delta = 1;           % Max perturbation
+        % Perturbation information
         n = 2;                  % Starting number of perturbations per cycle
 
         % Holding variables
