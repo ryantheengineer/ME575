@@ -2,8 +2,9 @@ clear all;
 close all;
 
 % Choose a starting design
-xs = [5;5];
+xs = [-1;-2.5];
 fs = objective(xs);
+xsearch = [xs];
 
 % Select Ps, Pf, N, and calculate Ts, Tf, and F
 Ps = 0.5;               % Probability of acceptance at start
@@ -16,13 +17,14 @@ F = (Tf/Ts)^(1/(N-1));  % Temperature reduction factor each cycle
 
 % Perturbation information
 delta = 2;              % Max perturbation
-n = 3;                  % Starting number of perturbations per cycle
+n = 2;                  % Starting number of perturbations per cycle
 
 % Holding variables
 dE = 0;
 dEavg = 0;
 perturbations = [1:N];
 objvals = zeros(1,N);
+funcount = 0;
 
 % Set starting values
 xc = xs;
@@ -33,7 +35,8 @@ T = Ts;
 for i = 1:N
     % Add the current objective value to the objective vector for plotting
     objvals(i) = objective(xc);
-    fc = objective(xc);
+%     fc = objective(xc);
+%     funcount = funcount + 1;
     
     % Step through the perturbations
     for j = 1:n
@@ -45,6 +48,7 @@ for i = 1:N
         
         % Get the objective value at the perturbed point
         fp = objective(xp);
+        funcount = funcount + 1;
         
         % Calculate values for Boltzmann function in case they're needed
         dE = abs(fp-fc);
@@ -60,6 +64,7 @@ for i = 1:N
         if fp < fc
             xc = xp;    % Accept as current design if better
             fc = objective(xc);
+            funcount = funcount + 1;
         else
             % If the new design is worse, generate a random number and
             % compare to the Boltzmann probability. If the random number is
@@ -70,13 +75,18 @@ for i = 1:N
             if randnum < P
                 xc = xp;
                 fc = objective(xc);
+                funcount = funcount + 1;
             end
         end     
     end
     % Decrease the temperature by factor F
     T = F*T;
     % Increase the number of perturbations each cycle
-    n = n+2;
+    if mod(i,3) == 1
+        n = n+1;
+    end
+    % Save the new search position at the end of each cycle
+    xsearch = [xsearch,xc];
 end
         
 % Plot the cooling curve
@@ -85,6 +95,8 @@ plot(perturbations,objvals);
 xlabel('Cycles');
 ylabel('Objective');
 title('Cooling Curve');
+
+save SAsearch.mat xsearch
 
 %% Functions
 
